@@ -1,13 +1,16 @@
 from math import cos, pi, sin
 from random import randint
+import sys
 from pygame import *
+
+sys.setrecursionlimit(10000)
 
 # random color
 def random_color():
     return (randint(0, 255), randint(0, 255), randint(0, 255))
 
 def random_gradiant():
-    return (randint(0, 255), randint(0, 255), randint(0, 255)), (randint(0, 255), randint(0, 255), randint(0, 255))
+    return random_color(), random_color()
 
 # fonction qui dessine un triangle
 def triangle(x1, y1, x2, y2, x3, y3, color):
@@ -22,7 +25,7 @@ def triangle_fractale(depth, x1, y1, x2, y2, x3, y3, colors):
         pass
     # sinon, on divise le triangle en 4 triangles plus petits
     else:
-        angle = pi/300
+        angle = pi/100
         rotation_mat = [[cos(angle), -sin(angle)], [sin(angle), cos(angle)]]
         factor = 99/100
 
@@ -49,26 +52,33 @@ def branche(x1, y1, x2, y2, color):
     draw.line(fenetre, color, (x1, y1), (x2, y2))
 
 # création d'une fenêtre
-fenetre = display.set_mode((640, 480))
+fenetre = display.set_mode((1000, 900))
 
 # profondeur de la fractale
-depth = 500
+depth = 3000
 
 # création des couleurs liées à la profondeur
 colors = []
 
 # couleurs par gradiant
-for i in range(depth+1):
-    gradiant_start, gradiant_end = random_gradiant()
-    gradiant_start, gradiant_end = (0, 0, 0), (255, 255, 255)
-    colors.append((gradiant_start[0] + (gradiant_end[0] - gradiant_start[0]) * i / depth, gradiant_start[1] + (gradiant_end[1] - gradiant_start[1]) * i / depth, gradiant_start[2] + (gradiant_end[2] - gradiant_start[2]) * i / depth))
+gradiant = random_gradiant()
+if(depth>100):
+    for i in range(depth+1):
+            if(i%100==0 and i != 0):
+                gradiant = (gradiant[1],random_color())
+                colors.append(gradiant[0])
+            else:
+                colors.append((gradiant[0][0] + (gradiant[1][0] - gradiant[0][0]) * (i%100) / 100, gradiant[0][1] + (gradiant[1][1] - gradiant[0][1]) * (i%100) / 100, gradiant[0][2] + (gradiant[1][2] - gradiant[0][2]) * (i%100) / 100))
+else:
+    for i in range(depth+1):
+        colors.append((gradiant[0][0] + (gradiant[1][0] - gradiant[0][0]) * i / depth, gradiant[0][1] + (gradiant[1][1] - gradiant[0][1]) * i / depth, gradiant[0][2] + (gradiant[1][2] - gradiant[0][2]) * i / depth))
 
 # couleurs aléatoires
 # for i in range(depth+1):
 #     colors.append(random_color())
 
 # dessin de la fractale
-triangle_fractale(depth, 320, 240, 20, 460, 620, 460, colors)
+triangle_fractale(depth, 500, 450, 1000, 0, 1000, 1000, colors)
 
 # mise à jour de l'affichage
 display.flip()
